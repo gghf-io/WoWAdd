@@ -1,5 +1,5 @@
 #!/usr/bin/zsh
-# COMMAND : wowadd
+# Name : wowadd
 # VERSION : 1.0.0
 
 source $(dirname "$0")/wowadd_utils.zsh
