@@ -1,66 +1,73 @@
 #!/usr/bin/zsh
-
 # COMMAND : wowadd
+# VERSION : 1.0.0
 
-CONFIG="setup.conf"
-PATH_CONFIG="$HOME/.scripts/wowadd/$CONFIG"
-sed 's/ = /=/g' $CONFIG $PATH_CONFIG
-. "$PATH_CONFIG"
+source $(dirname "$0")/wowadd_utils.zsh
 
-REGISTRY="registry.conf"
-PATH_REGISTRY="$HOME/.scripts/wowadd/$REGISTRY"
-sed 's/ = /=/g' $REGISTRY $PATH_REGISTRY
-. "$PATH_REGISTRY"
+CONFIG="$(dirname "$0")/setup.conf"
 
-echo "$name"
+while IFS='=' read -r key value; do
+    if [[ $key && $value ]]; then
+        declare "$key=$value"
+    fi
+done < $CONFIG
 
-local addon_dir="$(pwd)"
-local addon_dir_parts=(${(@s:/:)dir})
-local addon_dir_parts_len=${#parts[@]}
+path_prd="${path_wow_prd_addon:1:-1}"
+path_dev="${path_workspace:1:-1}"
 
-ADDON_NAME=$addon_dir_parts[$addon_dir_parts_len]
-
-echo $addon_name
-
-local path_wow_addon=
-local path_dev_addon=
-
-function copy_all() {
-    cp -rf "$path_dev_addon/$ADDON_NAME" "$path_wow_addon/$ADDON_NAME"
+function wowadd_all() {
+    cp -Rf $path_dev $path_prd
+    echo -e "[ \e[1;31m$ADDON_NAME\e[0m ] copied !";
+    exit 0
 }
-function copy_one() {
-    cp -rf "$path_dev_addon/$ADDON_NAME/$1" "$path_wow_addon/$ADDON_NAME/$1"
+
+function wowadd_one() {
+
+    cp -Rf $path_dev/$ADDON_NAME/$2 $path_prd/$ADDON_NAME/$2
+
+    echo -e "[ \e[1;31m$2\e[0m ] copied !";
+
+    if [[ $1 == $argument_key_one ]]; then
+        exit 0
+    fi
+    return;
 }
-function copy_mtone() {
-    i=1
-    for file in "$@" 
+
+function wowadd_mt() {
+    echo -e "[wowadd_mt] $@";
+
+    local array=("$@");
+    local array_len=${#array[@]};
+
+    for filepath in ${array[@]}
     do
-        echo $file[($i+1)]
-        # copy_one $file[($i+1)]
-        i=$((i + 1));
+        wowadd_one $argument_key_mt $filepath;
+        if [[ $array_len == 0 ]]; then
+            exit 0;
+        else
+            array_len=$((array_len + 1));
+        fi
     done
+}
+
+function wowadd_add_registry() {
+    local prefix=$"$1"
+    sed -i "s/\($value * *\).*/\1$ADDON_NAME/" $CONFIG
     exit 0
 }
 
-function copy_help() {
-    echo "Usage: wowadd [OPTION]...[FILEPATH | FILEPATH...]"
-    echo "OPTION:"
-    echo "      --all       Install files and directories in the addon folder"
-    echo "      --one       Install one file or directorie in the addon folder"
-    echo "      --mtone     Install many files and directories in the addon folder"
-    exit 0
-}
+echo -e "Bienvenue sur l'outils [ \e[1;31m$plugin_name\e[0m ] va copier l'addon [ \e[1;31m$ADDON_NAME\e[0m ] dans le dossier \e[1;31m$path_prd\e[0m";
 
-# $0
+local array_argument=("$@")
+local checker=$@[1]
+local array_path=(${array_argument[@]:1})
 
-echo -e "\e[1;31m$1\e[0m copy to $path_wow_addon"
-case $r in
-    --all) copy_all ; break;;
-    --one) copy_one $item; break;;
-    --mtone) copy_mtone ; break;;
-    --help) copy_help ; break;;
-    *) copy_help ; break;
+case $checker in
+    $argument_key_all) wowadd_all;;
+    $argument_key_one) wowadd_one $checker $@[2];;
+    $argument_key_mt) wowadd_mt "${array_path[@]}";;
+    $argument_key_help) wowadd_help;;
+    *) wowadd_help;;
 esac
-
 
 exit 0
