@@ -2,6 +2,13 @@
 # Name : wowadd
 # VERSION : 1.0.0
 
+echo "\e[1;31m  __      __               _____       .___  .___ \e[0m"
+echo "\e[1;31m /  \    /  \______  _  __/  _  \    __| _/__| _/ \e[0m"
+echo "\e[1;31m \   \/\/   /  _ \ \/ \/ /  /_\  \  / __ |/ __ |  \e[0m"
+echo "\e[1;31m  \        (  <_> )     /    |    \/ /_/ / /_/ |  \e[0m"
+echo "\e[1;31m   \__/\  / \____/ \/\_/\____|__  /\____ \____ |  \e[0m"
+echo "\e[1;31m        \/                      \/      \/    \/  \e[0m"
+
 source $(dirname "$0")/wowadd_utils.zsh
 
 CONFIG="$(dirname "$0")/setup.conf"
@@ -16,7 +23,7 @@ path_prd="${path_wow_prd_addon:1:-1}"
 path_dev="${path_workspace:1:-1}"
 
 function wowadd_all() {
-    cp -Rf $path_dev $path_prd
+    cp -Rf $path_dev/$ADDON_NAME $path_prd
     echo -e "[ \e[1;31m$ADDON_NAME\e[0m ] copied !";
     exit 0
 }
@@ -25,7 +32,7 @@ function wowadd_one() {
 
     cp -Rf $path_dev/$ADDON_NAME/$2 $path_prd/$ADDON_NAME/$2
 
-    echo -e "[ \e[1;31m$2\e[0m ] copied !";
+    echo -e "$(date) [ \e[1;31m$2\e[0m ] copied !";
 
     if [[ $1 == $argument_key_one ]]; then
         exit 0
@@ -56,7 +63,7 @@ function wowadd_add_registry() {
     exit 0
 }
 
-echo -e "Bienvenue sur l'outils [ \e[1;31m$plugin_name\e[0m ] va copier l'addon [ \e[1;31m$ADDON_NAME\e[0m ] dans le dossier \e[1;31m$path_prd\e[0m";
+echo -e "[ \e[1;31m$plugin_name\e[0m ] va copier l'addon [ \e[1;31m$ADDON_NAME\e[0m ] dans le dossier \e[1;31m$path_prd\e[0m";
 
 local array_argument=("$@")
 local checker=$@[1]
